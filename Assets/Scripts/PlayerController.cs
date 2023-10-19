@@ -15,10 +15,11 @@ public class PlayerController : NetworkBehaviour
         gameMaster.SetPlayerController(this);
         if (!IsHost)
         {
-            DealDeck_ServerRpc();
+            DealDeck_ServerRpc(false);
         }
     }
     
+
 
     public void OnPlayerSelectedTableCards()
     {
@@ -40,16 +41,16 @@ public class PlayerController : NetworkBehaviour
     }
     
     [ServerRpc(RequireOwnership = false)]
-    void DealDeck_ServerRpc()
+    void DealDeck_ServerRpc(bool shouldOverrideOwner)
     {
         gameMaster.ShuffleCards();
-        DealDeck_ClientRpc();
+        DealDeck_ClientRpc(shouldOverrideOwner);
     }
     
     [ClientRpc]
-    void DealDeck_ClientRpc()
+    void DealDeck_ClientRpc(bool shouldOverrideOwner)
     {
-        if (!IsOwner) return;
+        if (!shouldOverrideOwner && !IsOwner) return;
         Task putCardsInDeck = new Task(gameMaster.PutCardInDeck());
         putCardsInDeck.Finished += delegate
         {
@@ -281,6 +282,42 @@ public class PlayerController : NetworkBehaviour
             StartCoroutine(gameMaster.PlayerTakePileToHand(isJoker));
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void PlayerAddToRematch_ServerRpc()
+    {
+        PlayerAddToRematch_ClientRpc();
+    }
+
+    [ClientRpc]
+    void PlayerAddToRematch_ClientRpc()
+    {
+        gameMaster.playersRematch++;
+        if (!IsHost) return;
+
+        if (gameMaster.playersRematch == 2)
+        {
+            gameMaster.HideEndGameDialog();
+            Rematch_ServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void Rematch_ServerRpc()
+    {
+        Rematch_ClientRpc();
+    }
+
+    [ClientRpc]
+    void Rematch_ClientRpc()
+    {
+        gameMaster.ClearBoard();
+        gameMaster.HideEndGameDialog();
+        if (IsHost)
+        {
+            DealDeck_ServerRpc(true);
+        }
+    }
     
     public void OnPutCardInPile(Card card)
     {
@@ -303,10 +340,32 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+    public void OnAddToRematch()
+    {
+        PlayerAddToRematch_ServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void PlayerWon_ServerRpc(ulong id)
+    {
+        PlayerWon_ClientRpc(id);
+    }
+    
+    [ClientRpc]
+    void PlayerWon_ClientRpc(ulong id)
+    {
+        gameMaster.ShowEndGameDialog(GetId() == id);
+    }
 
     public void OnTurnFinished()
     {
         ulong id = GetId();
+
+        if (gameMaster.IsWon())
+        {
+            PlayerWon_ServerRpc(id);
+            return;
+        }
         Task drawMissingCards = new Task(DrawMissingCards(), false);
         drawMissingCards.Finished += delegate
         {

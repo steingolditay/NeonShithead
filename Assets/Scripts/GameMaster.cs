@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using TMPro;
 using UnityEngine;
 
 public class GameMaster : MonoBehaviour
@@ -43,9 +44,16 @@ public class GameMaster : MonoBehaviour
     [SerializeField] private Material opponentTurnIndicatorMaterial;
     [SerializeField] private Material turnIndicatorOffMaterial;
 
-    [Header("Dialogs")] 
+    [Header("Dialogs")]
     [SerializeField] private GameObject selectCardsDialog;
-    
+    [SerializeField] private GameObject endGameDialog;
+
+    [Header("Players")] 
+    [SerializeField] private TextMeshProUGUI opponentName;
+    [SerializeField] private TextMeshProUGUI opponentScore;
+    [SerializeField] private TextMeshProUGUI playerName;
+    [SerializeField] private TextMeshProUGUI playerScore;
+
     public enum PlayerTurn
     {
         Player,
@@ -69,6 +77,7 @@ public class GameMaster : MonoBehaviour
     public List<Card> selectedCards = new List<Card>();
 
     public int playersReady = 0;
+    public int playersRematch = 0;
     public ulong firstPlayerToStart = 0;
     private PlayerTurn currentPlayerTurn = PlayerTurn.None;
     public bool opponentPlayedTurn = false;
@@ -83,6 +92,8 @@ public class GameMaster : MonoBehaviour
 
         selectCardsDialog.transform.localScale = Vector3.zero;
         selectCardsDialog.SetActive(true);
+        endGameDialog.transform.localScale = Vector3.zero;
+        endGameDialog.SetActive(true);
     }
 
     private void OnDestroy()
@@ -385,6 +396,63 @@ public class GameMaster : MonoBehaviour
         selectCardsDialog.LeanScale(state ? new Vector3(1, 1, 1) : Vector3.zero, 0.3f)
             .setEase(LeanTweenType.easeInCubic)
             .setOvershoot(0.2f);
+    }
+
+    public bool IsWon()
+    {
+        int tableCardsCount = playerTableCard1.childCount + playerTableCard2.childCount + playerTableCard3.childCount;
+        int deckCardsCount = deck.childCount;
+        int handCardsCount = playerHand.childCount;
+        return deckCardsCount == 0 && handCardsCount == 0 && tableCardsCount == 0;
+    }
+
+    public void ShowEndGameDialog(bool isWon)
+    {
+        endGameDialog.LeanScale(new Vector3(1, 1, 1), 0.3f)
+            .setEase(LeanTweenType.easeInCubic)
+            .setOvershoot(0.2f);
+        endGameDialog.GetComponent<EndGameDialog>().SetTitle(isWon ? "YOU WIN" : "YOU LOSE");
+
+        TextMeshProUGUI winnerScore = isWon ? opponentScore : playerScore;
+        int currentScore = int.Parse(winnerScore.text);
+        winnerScore.text = (currentScore + 1).ToString();
+    }
+
+    public void AddToRematch()
+    {
+        playerController.OnAddToRematch();
+    }
+
+    public void ExitGame()
+    {
+        
+    }
+
+
+
+    public void HideEndGameDialog()
+    {
+        endGameDialog.LeanScale(Vector3.zero, 0.3f)
+            .setEase(LeanTweenType.easeInCubic)
+            .setOvershoot(0.2f);
+    }
+
+    public void ClearBoard()
+    {
+        List<Transform> positions = new List<Transform>
+        {
+            pile, deck, graveyard, playerHand, opponentHand, 
+            opponentTableCard1, opponentTableCard2, opponentTableCard3,
+            playerTableCard1, playerTableCard2, playerTableCard3
+        };
+        
+        foreach (Transform position in positions)
+        {
+            foreach (Transform card in position)
+            {
+                Destroy(card.gameObject);
+            }
+        }
     }
 
     public IEnumerator SetPlayerSelectedTableCards()
