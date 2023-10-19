@@ -4127,7 +4127,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostButton: {fileID: 554593078}
   clientButton: {fileID: 1061049743}
-  rematchButton: {fileID: 1238909589}
 --- !u!114 &946488694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7227,8 +7226,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 5.62
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
