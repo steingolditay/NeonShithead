@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.Services.Lobbies;
 using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
 
     private GameMaster gameMaster;
+    
 
     private void Start()
     {
@@ -17,6 +19,7 @@ public class PlayerController : NetworkBehaviour
         {
             DealDeck_ServerRpc(false);
         }
+
     }
     
 
@@ -50,6 +53,9 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void DealDeck_ClientRpc(bool shouldOverrideOwner)
     {
+        gameMaster.ToggleMainMenu(false);
+        gameMaster.SetPlayerNames();
+
         if (!shouldOverrideOwner && !IsOwner) return;
         Task putCardsInDeck = new Task(gameMaster.PutCardInDeck());
         putCardsInDeck.Finished += delegate

@@ -2,7 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Net;
 using TMPro;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
 public class GameMaster : MonoBehaviour
@@ -13,6 +17,7 @@ public class GameMaster : MonoBehaviour
     [SerializeField] private GameObject cardPrefab;
     [SerializeField] private Sprite cover;
     [SerializeField] private Sprite[] cardFronts;
+    [SerializeField] private LobbyManager lobbyManager;
 
     [Header("Placements")] 
 
@@ -44,7 +49,8 @@ public class GameMaster : MonoBehaviour
     [SerializeField] private Material opponentTurnIndicatorMaterial;
     [SerializeField] private Material turnIndicatorOffMaterial;
 
-    [Header("Dialogs")]
+    [Header("Dialogs")] 
+    [SerializeField] private GameObject mainMenuDialog;
     [SerializeField] private GameObject selectCardsDialog;
     [SerializeField] private GameObject endGameDialog;
 
@@ -102,6 +108,24 @@ public class GameMaster : MonoBehaviour
         {
             Singleton = null;
         }
+    }
+
+    public void ToggleMainMenu(bool state)
+    {
+        mainMenuDialog.SetActive(state);
+    }
+
+    public void SetPlayerNames()
+    {
+        foreach (Player player in lobbyManager.GetCurrentLobby().Players)
+        {
+            if (player.Id != AuthenticationService.Instance.PlayerId)
+            {
+                // set opponent name 
+                string playerName = player.Data["PlayerName"].Value;
+            }
+        }
+
     }
 
     public void SetPlayerController(PlayerController callback)
