@@ -117,15 +117,15 @@ public class GameMaster : MonoBehaviour
 
     public void SetPlayerNames()
     {
+
+        playerName.text = Utils.GetPlayerName();
         foreach (Player player in lobbyManager.GetCurrentLobby().Players)
         {
             if (player.Id != AuthenticationService.Instance.PlayerId)
             {
-                // set opponent name 
-                string playerName = player.Data["PlayerName"].Value;
+                opponentName.text = player.Data[Utils.DATA_PLAYER_NAME].Value;
             }
         }
-
     }
 
     public void SetPlayerController(PlayerController callback)
@@ -192,10 +192,8 @@ public class GameMaster : MonoBehaviour
     {
         Quaternion rotation = Quaternion.Euler(new Vector3(0, 0, 180));
         Vector3 destination = deck.position;
-
-        for (int i = 0; i < 19; i++)
-
-        // for (int i = 0; i < 54; i++)
+        
+        for (int i = 0; i < 54; i++)
         {
 
             float speed = 1 / (i == 0 ? 1f : i);
@@ -212,70 +210,15 @@ public class GameMaster : MonoBehaviour
 
     public void ShuffleCards()
     {
-        // cardModels = Utils.GetAllCardModels();
-        //
-        // for (int i = 0; i < cardModels.Count - 1; i++)
-        // {
-        //     CardModel temp = cardModels[i];
-        //     int random = Random.Range(i, cardModels.Count);
-        //     cardModels[i] = cardModels[random];
-        //     cardModels[random] = temp;
-        // }
-        //
+        cardModels = Utils.GetAllCardModels();
         
-        // test
-        
-        // Table Cards //
-        Collection<CardModel> list = new Collection<CardModel>();
-        list.Add(new CardModel(4, CardFlavour.Diamond));
-        list.Add(new CardModel(4, CardFlavour.Club));
-        list.Add(new CardModel(5, CardFlavour.Diamond));
-        list.Add(new CardModel(5, CardFlavour.Club));
-        list.Add(new CardModel(6, CardFlavour.Diamond));
-        list.Add(new CardModel(6, CardFlavour.Club));
-
-        // // Selection Cards //
-        list.Add(new CardModel(12, CardFlavour.Diamond));
-        list.Add(new CardModel(13, CardFlavour.Club));
-        
-        list.Add(new CardModel(12, CardFlavour.Diamond));
-        list.Add(new CardModel(13, CardFlavour.Club));
-        
-        list.Add(new CardModel(12, CardFlavour.Diamond));
-        list.Add(new CardModel(13, CardFlavour.Club));
-        
-        list.Add(new CardModel(12, CardFlavour.Diamond));
-        list.Add(new CardModel(13, CardFlavour.Diamond));
-        
-        list.Add(new CardModel(2, CardFlavour.Club));
-        list.Add(new CardModel(3, CardFlavour.Club));
-        
-        list.Add(new CardModel(2, CardFlavour.Spade));
-        list.Add(new CardModel(3, CardFlavour.Spade));
-        //
-        // // First Card //
-        list.Add(new CardModel(3, CardFlavour.Heart));
-        //
-        // // Deck Cards //
-        //
-        // list.Add(new CardModel(11, CardFlavour.Heart));
-        // list.Add(new CardModel(12, CardFlavour.Heart));
-        //
-        // list.Add(new CardModel(10, CardFlavour.Diamond));
-        // list.Add(new CardModel(10, CardFlavour.Club));
-        // list.Add(new CardModel(10, CardFlavour.Spade));
-        // list.Add(new CardModel(10, CardFlavour.Heart));
-        // list.Add(new CardModel(9, CardFlavour.Diamond));
-        // list.Add(new CardModel(9, CardFlavour.Club));
-        // list.Add(new CardModel(9, CardFlavour.Spade));
-        // list.Add(new CardModel(9, CardFlavour.Heart));
-        // list.Add(new CardModel(1, CardFlavour.Diamond));
-        // list.Add(new CardModel(1, CardFlavour.Club));
-        // list.Add(new CardModel(1, CardFlavour.Spade));
-        // list.Add(new CardModel(1, CardFlavour.Heart));
-
-        
-        cardModels = list;
+        for (int i = 0; i < cardModels.Count - 1; i++)
+        {
+            CardModel temp = cardModels[i];
+            int random = Random.Range(i, cardModels.Count);
+            cardModels[i] = cardModels[random];
+            cardModels[random] = temp;
+        }
     }
 
     public void DealPlayerTableCard(CardModel cardModel, int number)

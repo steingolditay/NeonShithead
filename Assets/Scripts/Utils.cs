@@ -7,8 +7,12 @@ using UnityEngine;
 public static class Utils
 {
     
+    public const string DATA_PLAYER_NAME = "playerName";
+    public const string DATA_JOIN_CODE = "joinCode";
+    private const string KEY_PLAYER_NAME = "playerName";
+
     private const float baseHorizontalDistance = 0.45f;
-    private const float baseVerticalDistance = 0.02f;
+    private const float baseVerticalDistance = 0.2f;
 
     public static Collection<CardModel> GetAllCardModels()
     {
@@ -212,6 +216,17 @@ public static class Utils
         }
 
         return false;
+    }
+
+    public static void SetPlayerName(string name)
+    {
+        PlayerPrefs.SetString(KEY_PLAYER_NAME, name);
+
+    }
+    
+    public static string GetPlayerName()
+    {
+        return PlayerPrefs.GetString(KEY_PLAYER_NAME, "");
     }
     
 

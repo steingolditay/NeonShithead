@@ -44,8 +44,7 @@ public class JoinLobbyMenu : MonoBehaviour
         
         foreach (Lobby lobby in lobbiesQuery.Results)
         {
-            string hostName = lobby.Data[lobbyManager.DATA_HOST_NAME].Value;
-            string joinCode = lobby.Data[lobbyManager.DATA_JOIN_CODE].Value;
+            string joinCode = lobby.Data[Utils.DATA_JOIN_CODE].Value;
             GameObject lobbyObject = Instantiate(lobbyItem, lobbyList);
             LobbyItem item = lobbyObject.GetComponent<LobbyItem>();
             item.SetName(lobby.Name);

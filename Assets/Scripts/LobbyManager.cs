@@ -15,12 +15,13 @@ using UnityEngine;
 public class LobbyManager : MonoBehaviour
 {
 
-    [HideInInspector] public string DATA_HOST_NAME = "hostName";
-    [HideInInspector] public string DATA_JOIN_CODE = "joinCode";
+
 
     private Lobby createdLobby;
     private float hearbeatTimer = 15;
     private float heartbeatCountdown = 15;
+    private float lobbyUpdateTimer = 1.1f;
+    private float lobbyUpdateCountdown = 1.1f;
     private int maxNumberOfPlayers = 2;
 
 
@@ -40,9 +41,16 @@ public class LobbyManager : MonoBehaviour
         if (createdLobby != null)
         {
             heartbeatCountdown -= Time.deltaTime;
+            lobbyUpdateCountdown -= Time.deltaTime;
+            
             if (heartbeatCountdown <= 0)
             {
                 SendHeartbeat();
+            }
+
+            if (lobbyUpdateCountdown <= 0)
+            {
+                UpdateLobby();
             }
         }
     }
@@ -51,6 +59,19 @@ public class LobbyManager : MonoBehaviour
     {
         heartbeatCountdown = hearbeatTimer;
         await LobbyService.Instance.SendHeartbeatPingAsync(createdLobby.Id);
+    }
+
+    private async void UpdateLobby()
+    {
+        lobbyUpdateCountdown = lobbyUpdateTimer;
+        try
+        {
+            createdLobby = await LobbyService.Instance.GetLobbyAsync(createdLobby.Id);
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
     }
 
     public async void CreateLobby(string lobbyName)
@@ -68,19 +89,20 @@ public class LobbyManager : MonoBehaviour
                 allocation.ConnectionData
                 );
             NetworkManager.Singleton.StartHost();
-            
+
+            string playerName = Utils.GetPlayerName();
             CreateLobbyOptions option = new CreateLobbyOptions
             {
                 Player = new Player
                 {
                     Data = new Dictionary<string, PlayerDataObject>
                     {
-                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "Host") }
+                        { Utils.DATA_PLAYER_NAME, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) }
                     }
                 },
                 Data = new Dictionary<string, DataObject>
                 {
-                    {DATA_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, joinCode)}
+                    { Utils.DATA_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Public, joinCode) }
                 }
             };
             createdLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxNumberOfPlayers, option);
@@ -116,13 +138,14 @@ public class LobbyManager : MonoBehaviour
     {
         try
         {
+            string playerName = Utils.GetPlayerName();
             JoinLobbyByIdOptions joinLobbyByCodeOptions = new JoinLobbyByIdOptions
             {
                 Player = new Player
                 {
                     Data = new Dictionary<string, PlayerDataObject>
                     {
-                        { "PlayerName", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, "Client") }
+                        { Utils.DATA_PLAYER_NAME, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Public, playerName) }
                     }
                 }
             };

@@ -8,6 +8,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button createButton;
     [SerializeField] private Button exitButton;
 
+    [SerializeField] private GameObject playerNameMenu;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject joinLobbyMenu;
     [SerializeField] private GameObject createLobbyMenu;
@@ -20,6 +21,27 @@ public class MainMenu : MonoBehaviour
         joinButton.onClick.AddListener(ShowLobbyMenu);
         createButton.onClick.AddListener(ShowCreateMenu);
         exitButton.onClick.AddListener(ExitGame);
+
+        if (Utils.GetPlayerName() == "")
+        {
+            ShowPlayerNameMenu();
+        }
+        else
+        {
+            OnPlayerNameSet();
+        }
+    }
+
+    public void OnPlayerNameSet()
+    {
+        mainMenu.SetActive(true);
+        playerNameMenu.SetActive(false);
+    }
+    
+    private void ShowPlayerNameMenu()
+    {
+        mainMenu.SetActive(false);
+        playerNameMenu.SetActive(true);
     }
 
     private void ShowLobbyMenu()

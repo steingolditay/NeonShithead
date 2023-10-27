@@ -35,7 +35,7 @@ public class CreateLobbyMenu : MonoBehaviour
     private void ValidateInput(string input)
     {
         lobbyName = input;
-        createButton.interactable = input.Length > 4;
+        createButton.interactable = input.Length >= 4;
     }
 
     private void CreateLobby()
